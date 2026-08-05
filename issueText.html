@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Issue Text tool</title>
+<style>
+:root{
+    --bg:#0f172a;
+    --card:#111827;
+    --border:#1f2937;
+    --text:#e5e7eb;
+    --accent:#6022A6;
+}
+*{ box-sizing:border-box; }
+body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Source Sans Pro', sans-serif;
+}
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:30px;
+}
+.card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:25px;
+}
+h1{ margin-top:0; }
+label{
+    display:block;
+    margin-top:15px;
+    margin-bottom:5px;
+    font-weight:600;
+}
+select,
+textarea{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:white;
+    color:black;
+}
+textarea{
+    resize:vertical;
+    min-height:300px;
+}
+.row{
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+}
+.col{ flex:1; }
+.preview{
+    margin-top:20px;
+    border:5px solid #7b43bf;
+    border-radius:10px;
+    padding:15px;
+    background:white;
+    white-space:pre-line;
+    color:black;
+}
+button{
+    margin-top:15px;
+    background:var(--accent);
+    color:white;
+    border:none;
+    border-radius:10px;
+    padding:12px 18px;
+    cursor:pointer;
+    font-weight:bold;
+	transition: 1s;
+}
+button:hover{ background:#9856fc; }
+.lang{
+    text-align:right;
+    margin-bottom:15px;
+}
+.lang button{ margin-left:5px; }
+#areasContainer,
+#categoriesContainer{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:8px 20px;
+    margin-top:10px;
+}
+#areasContainer label,
+#categoriesContainer label{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin:0;
+    font-weight:normal;
+}
+#introPreview{
+    margin-top:10px;
+    padding:12px;
+    background:#f3f4f6;
+    border-radius:8px;
+    color:black;
+    white-space:pre-line;
+    min-height:44px;
+}
+#impact{ max-width:250px; }
+@media (max-width:768px){
+    #areasContainer,
+    #categoriesContainer{
+        grid-template-columns:repeat(2, 1fr);
+    }
+}
+@media (max-width:480px){
+    #areasContainer,
+    #categoriesContainer{
+        grid-template-columns:1fr;
+    }
+}
+.template-section{ margin-top:30px; }
+.template-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    padding:10px;
+    margin-top:8px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:#0b1022;
+}
+.template-text{
+    flex:1;
+    cursor:pointer;
+    word-break:break-word;
+}
+.btn-add{
+    margin-top:0;
+    background:#218a55;
+    padding:8px 12px;
+}
+.btn-delete{
+    margin-top:0;
+    background:#dc2626;
+    padding:8px 12px;
+}
+#btnSaveTemplate{ margin-right:10px; }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="card">
+<div class="lang">
+<button onclick="setLang('pt')">PT</button>
+<button onclick="setLang('es')">ES</button>
+</div>
+<h1 id="title">ISSUE TEXT</h1>
+
+<label id="lblIntro"><h2>Texto de Introdução</h2></label>
+<select id="introTemplate">
+    <option value="">Selecione...</option>
+</select>
+
+
+<textarea
+    id="introPreview"
+    placeholder="Texto de introdução..."
+    style="
+        margin-top:10px;
+        min-height:120px;
+        white-space:pre-line;
+    ">
+</textarea>
+
+<div class="row">
+<div class="col">
+<label id="lblCategory"><h2>Categoria</h2></label>
+<div id="categoriesContainer"></div>
+
+<label id="lblImpact"><h2>Impacto</h2></label>
+<select id="impact">
+    <option value="">Selecione...</option>
+    <option>Alto</option>
+    <option>Médio</option>
+    <option>Baixo</option>
+</select>
+</div>
+</div>
+
+<label id="lblArea"><h2>Área de atuação</h2></label>
+<div id="areasContainer"></div>
+
+<label id="lblDescription"><h2>Descrição</h2></label>
+<textarea id="description" placeholder="Descreva o issue encontrado"></textarea>
+
+<button type="button" id="btnSaveTemplate" onclick="saveTemplate()">
+SAVE AS AUTOTEXT
+</button>
+
+<label id="lblPreview"><h2>FINAL TEXT PREVIEW</h2></label>
+<div id="preview" class="preview"></div>
+
+<button onclick="copyIssue()" id="btnCopy">COPIAR TEXTO</button>
+<button onclick="copyIssue(); window.open('issueCommunication.html', '_blank')" id="btnCopyAndGroupTeams">
+ISSUE COMMUNICATION &#10145;
+</button>
+<button onclick="window.open('https://app.smartsheet.com/sheets/Xc8Qw5m2Qx2grfhjvRqVxqpwf9Rp85c7Mxm794m1?view=grid', '_blank')">
+		SMARTSHEET ISSUES &#9888;
+</button>
+
+<div class="template-section">
+    <h2 id="lblTemplates">MY AUTOTEXTS:</h2>
+    <div id="templatesList"></div>
+</div>
+</div>
+</div>
+
+<script>
+let LANG = "pt";
+
+const INTRO_TEMPLATES = {
+    pt:[
+        {
+            title:"Template de Cancelamento",
+            text:"Cancelamento de Aplicação.\n\nRegistramos o cancelamento da aplicação programada em razão de impedimentos operacionais identificados durante a atividade, impossibilitando sua realização conforme planejado. O replanejamento será conduzido em alinhamento com as equipes envolvidas."
+        },
+        {
+            title:"Template Informativo de issue (Yellow Flag)",
+            text:"Prezados,\n\nO time de Education informa a identificação de um problema classificado como 'Yellow Flag' durante a validação realizada para a atividade de aplicação programada e o mesmo pode impactar o andamento do treinamento conforme planejado.\nO objetivo desta comunicação é dar visibilidade ao tema, ao impacto identificado e aos próximos passos previstos para sua resolução."
+
+        }
+    ],
+    es:[
+        {
+            title:"Template de Cancelación",
+            text:"Cancelación de Aplicación.\n\nRegistramos la cancelación de la aplicación programada debido a impedimentos operativos identificados durante la actividad, lo que imposibilitó su realización según lo previsto. La reprogramación se llevará a cabo en coordinación con los equipos involucrados."
+        },
+        {
+            title:"Template Informativo de issue (Yellow Flag)",
+            text:"Estimados,\n\nEl equipo de Education informa la identificación de un problema clasificado como 'Yellow Flag' durante la validación realizada para la actividad de aplicación programada, el cual podría impactar el desarrollo de la capacitación según lo planificado.\nEl objetivo de esta comunicación es brindar visibilidad sobre la situación, el impacto identificado y los próximos pasos previstos para su resolución."
+        }
+    ]
+};
+
+const I18N = {
+pt:{
+    title:"ISSUE TEXT (PT-BR)",
+    intro:"Texto de Introdução",
+    category:"Categoria",
+    impact:"Impacto",
+    area:"Área de atuação",
+    description:"Descrição",
+    preview:"FINAL TEXT PREVIEW",
+    copy:"Copiar Texto",
+    impactOptions:["Alto", "Médio", "Baixo"],
+    categories:["Licença de Software", "Configuração", "Itens faltantes", "Agenda de Pacientes", "Estudantes", "Falha", "Qualidade de Imagem", "Pendência de Instalação"],
+    areas:["Serviços", "Comercial", "Modalidade/PSS", "Cliente", "Educação"]
+},
+es:{
+    title:"ISSUE TEXT (ES)",
+    intro:"Texto de Introducción",
+    category:"Categoría",
+    impact:"Impacto",
+    area:"Área de actuación",
+    description:"Descripción",
+    preview:"FINAL TEXT PREVIEW",
+    copy:"Copiar Texto",
+    impactOptions:["Alto", "Medio", "Bajo"],
+    categories:["Licencia de Software", "Configuración", "Itens faltantes", "Agenda de Pacientes", "Estudiantes", "Falla", "Calidad de Imagen", "Pendiente de Instalación"],
+    areas:["Servicios", "Comercial", "Modalidad/PSS", "Cliente", "Educación"]
+}
+};
+
+function defaultSelectText(){
+    return LANG === "pt" ? "Selecione..." : "Seleccione...";
+}
+
+function populateIntroTemplates(){
+    const select = document.getElementById("introTemplate");
+    const current = select.value;
+    select.innerHTML = "";
+
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = defaultSelectText();
+    select.appendChild(defaultOption);
+
+    INTRO_TEMPLATES[LANG].forEach((item,index)=>{
+        const option = document.createElement("option");
+        option.value = index;
+        option.textContent = item.title;
+        select.appendChild(option);
+    });
+
+    if(current !== "" && INTRO_TEMPLATES[LANG][current]){
+        select.value = current;
+    }
+    else{
+        select.value = "";
+    }
+    updateIntroPreview();
+}
+
+function updateIntroPreview(){
+    const select = document.getElementById("introTemplate");
+    const introPreview = document.getElementById("introPreview");
+    const selectedIndex = select.value;
+
+    if(selectedIndex !== "" && INTRO_TEMPLATES[LANG][selectedIndex]){
+        introPreview.value = INTRO_TEMPLATES[LANG][selectedIndex].text;
+    }
+}
+
+function populateImpacts(){
+    const select = document.getElementById("impact");
+    const current = select.selectedIndex;
+    select.innerHTML = "";
+
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = defaultSelectText();
+    select.appendChild(defaultOption);
+
+    I18N[LANG].impactOptions.forEach(item=>{
+        const option = document.createElement("option");
+        option.value = item;
+        option.textContent = item;
+        select.appendChild(option);
+    });
+
+    if(current >= 0 && current < select.options.length){
+        select.selectedIndex = current;
+    }
+}
+
+function populateAreas(){
+    const container = document.getElementById("areasContainer");
+    const selected = Array.from(container.querySelectorAll("input:checked")).map(item=>item.dataset.index);
+    container.innerHTML = "";
+
+    I18N[LANG].areas.forEach((area,index)=>{
+        const label = document.createElement("label");
+        label.innerHTML = `<input type="checkbox" data-index="${index}"> ${area}`;
+        container.appendChild(label);
+    });
+
+    selected.forEach(index=>{
+        const checkbox = container.querySelector(`input[data-index="${index}"]`);
+        if(checkbox){ checkbox.checked = true; }
+    });
+
+    container.querySelectorAll("input").forEach(item=>item.addEventListener("change", renderIssue));
+}
+
+function populateCategories(){
+    const container = document.getElementById("categoriesContainer");
+    const selected = Array.from(container.querySelectorAll("input:checked")).map(item=>item.dataset.index);
+    container.innerHTML = "";
+
+    I18N[LANG].categories.forEach((cat,index)=>{
+        const label = document.createElement("label");
+        label.innerHTML = `<input type="checkbox" data-index="${index}"> ${cat}`;
+        container.appendChild(label);
+    });
+
+    selected.forEach(index=>{
+        const checkbox = container.querySelector(`input[data-index="${index}"]`);
+        if(checkbox){ checkbox.checked = true; }
+    });
+
+    container.querySelectorAll("input").forEach(item=>item.addEventListener("change", renderIssue));
+}
+
+function setLang(lang){
+    LANG = lang;
+    document.getElementById("title").innerText = I18N[LANG].title;
+    document.getElementById("lblIntro").innerText = I18N[LANG].intro;
+    document.getElementById("lblCategory").innerText = I18N[LANG].category;
+    document.getElementById("lblImpact").innerText = I18N[LANG].impact;
+    document.getElementById("lblArea").innerText = I18N[LANG].area;
+    document.getElementById("lblDescription").innerText = I18N[LANG].description;
+    document.getElementById("lblPreview").innerText = I18N[LANG].preview;
+    document.getElementById("btnCopy").innerText = I18N[LANG].copy;
+
+    populateIntroTemplates();
+    populateCategories();
+    populateImpacts();
+    populateAreas();
+    renderIssue();
+}
+
+function buildIssue(){
+    const lines = [];
+    const introText = document.getElementById("introPreview").value.trim();
+
+    if(introText){
+        lines.push(introText);
+        lines.push("");
+    }
+
+    const categories = Array.from(document.querySelectorAll("#categoriesContainer input:checked"))
+        .map(item=>item.parentElement.textContent.trim());
+    const impact = document.getElementById("impact").value;
+    const description = document.getElementById("description").value.trim();
+    const areas = Array.from(document.querySelectorAll("#areasContainer input:checked"))
+        .map(item=>item.parentElement.textContent.trim());
+
+    if(categories.length){
+        lines.push(`- ${I18N[LANG].category}: ${categories.join(", ")}.`);
+    }
+    if(impact){
+        lines.push(`- ${I18N[LANG].impact}: ${impact}.`);
+    }
+    if(areas.length){
+        lines.push(`- ${I18N[LANG].area}: ${areas.join(", ")}.`);
+    }
+    if(description){
+        lines.push(description);
+    }
+
+    return lines.join("\n");
+}
+
+function renderIssue(){
+    document.getElementById("preview").textContent = buildIssue();
+}
+
+async function copyIssue(){
+    try{
+        await navigator.clipboard.writeText(buildIssue());
+        alert(LANG === "pt" ? "Texto copiado." : "Texto copiado.");
+    }
+    catch{
+        alert(LANG === "pt" ? "Falha ao copiar." : "Error al copiar.");
+    }
+}
+
+document.getElementById("introPreview").addEventListener("input",renderIssue);
+document.getElementById("introTemplate").addEventListener("change", function(){
+    updateIntroPreview();
+    renderIssue();
+});
+document.getElementById("impact").addEventListener("change", renderIssue);
+document.getElementById("description").addEventListener("input", renderIssue);
+
+function getTemplates(){
+    return JSON.parse(localStorage.getItem("issueTemplates") || "[]");
+}
+function saveTemplates(list){
+    localStorage.setItem("issueTemplates", JSON.stringify(list));
+}
+function saveTemplate(){
+    const description = document.getElementById("description").value.trim();
+    if(!description){
+        alert(LANG === "pt" ? "Digite uma descrição para salvar." : "Ingrese una descripción para guardar.");
+        return;
+    }
+    const templates = getTemplates();
+    if(templates.includes(description)){
+        alert(LANG === "pt" ? "Este template já existe." : "Esta plantilla ya existe.");
+        return;
+    }
+    templates.push(description);
+    saveTemplates(templates);
+    renderTemplates();
+    alert(LANG === "pt" ? "Auto Text salvo." : "Auto Text guardada.");
+}
+function loadTemplate(index){
+    const templates = getTemplates();
+    const textarea = document.getElementById("description");
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const textToInsert = templates[index];
+    textarea.value = textarea.value.substring(0, start) + textToInsert + textarea.value.substring(end);
+    const newPos = start + textToInsert.length;
+    textarea.focus();
+    textarea.setSelectionRange(newPos, newPos);
+    renderIssue();
+}
+function addTemplate(index){
+    loadTemplate(index);
+}
+function deleteTemplate(index){
+    const templates = getTemplates();
+    if(!confirm(LANG === "pt" ? "Deseja excluir este template?" : "¿Desea eliminar esta plantilla?")){
+        return;
+    }
+    templates.splice(index,1);
+    saveTemplates(templates);
+    renderTemplates();
+}
+function renderTemplates(){
+    const container = document.getElementById("templatesList");
+    if(!container){ return; }
+    container.innerHTML = "";
+    const templates = getTemplates();
+    if(!templates.length){
+        container.innerHTML = `<div style="opacity:.7">${LANG === "pt" ? "Nenhum autotext salvo." : "Ningun autotext guardado."}</div>`;
+        return;
+    }
+    templates.forEach((text,index)=>{
+        const item = document.createElement("div");
+        item.className = "template-item";
+        const displayText = text.length > 120 ? text.substring(0,120) + "..." : text;
+        item.innerHTML = `
+            <div class="template-text" title="${text.replace(/"/g,'&quot;')}" onclick="loadTemplate(${index})">${displayText}</div>
+            <button class="btn-add" onclick="addTemplate(${index})">ADD</button>
+            <button class="btn-delete" onclick="deleteTemplate(${index})">DELETE</button>
+        `;
+        container.appendChild(item);
+    });
+}
+
+populateIntroTemplates();
+populateCategories();
+populateImpacts();
+populateAreas();
+renderIssue();
+renderTemplates();
+</script>
+</body>
+</html>

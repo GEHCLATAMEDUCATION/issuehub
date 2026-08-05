@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width">
-    <title>ISSUE HUB</title>
+    <title>&#9888 ISSUE HUB</title>
     <style>
+	
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f8;
+            font-family: 'Source Sans Pro', sans-serif;
+            background-color: #0f172a;
             text-align: center;
-            padding: 40px;
-			width: 350px;
+            padding: 0px;
+			width: 500px;
 			margin-left: auto; 
 			margin-right: auto;
 			margin-top: auto; 
@@ -18,8 +19,8 @@
         }
 
         h1 {
-            color: #5f00d4;
-			font-size: 30px;
+            color: #e5e7eb;
+			font-size: 60px;
 			
         }
 		
@@ -27,74 +28,96 @@
 			display: block;
             margin: 5px auto;
             padding: 15px;
-            font-size: 16px;
-            background-color: #18012b;
+            font-size: 30px;
+            background-color: #0f172a;
             color: white;
             border-radius: 8px;
             text-decoration: none;
+			border:1px solid #1f2937;
+			border-radius:16px;
 		}
+		
+		h3 {
+            color: #e5e7eb;
+			font-size: 10px;
+			
+        }
 
         .container {
             margin-top: 40px;
+			background:#111827;
+			border:1px solid #1f2937;
+			border-radius:16px;
+			padding: 20px;
         }
 
-        .btn {
-            display: block;
-            margin: 15px auto;
-            padding: 15px;
-            font-size: 16px;
-            background-color: #5f00d4;
-            color: white;
-            border-radius: 8px;
-            text-decoration: none;
-            transition: 0.3s;
-        }
+        button{
+			margin-top:20px;
+			width: 450px;
+			background:#6022A6;
+			color:white;
+			border:none;
+			border-radius:10px;
+			padding:12px 18px;
+			cursor:pointer;
+			font-weight:bold;
+			transition: 1s;
+		}
 
-        .btn:hover {
-            background-color: #18012b;
-        }
+		button:hover{
+			background:#9856fc;
+		}
     </style>
 </head>
 <body>
-	<img src="EducationLogo.png" width="190px">
+	<!--<img src="EducationLogo.png" width="190px">-->
     <h1>&#9888 ISSUE HUB</h1>
 
 	
     <div class="container">
-	<h2>Documentos &#128188;</h2>
-        <!-- Botão 1 -->
-        <a href="SOPIssues-GuiaAplicacion_v1.0_es.pdf" class="btn" target="_blank">
+	<h2>HERRAMIENTAS&#128295;</h2>
+	<!-- Botão 1 -->
+		<button onclick="window.open('IssueText.html', '_blank')">
+            <strong>ISSUE TEXT</strong><br>
+			Crear texto de manera estructurada		
+        </button>
+	
+	<!-- Botão 2 -->
+		<button onclick="window.open('IssueCommunication.html', '_blank')">
+            <strong>ISSUE COMMUNICATION</strong><br>
+			Crear grupo en MS Teams y Correo Electrónico.			
+        </button>
+		
+	<!-- Botão 3 -->
+        <button onclick="window.open('https://app.smartsheet.com/sheets/Xc8Qw5m2Qx2grfhjvRqVxqpwf9Rp85c7Mxm794m1?view=grid', '_blank')">
+            <strong>SMARTSHEET ISSUE</strong><br>
+			Acceso a la SmartSheet de los issues			
+        </button>
+		
+	<h1></h1>
+			
+	<h2>DOCUMENTOS &#128188;</h2>
+        <!-- Botão 4 -->
+        <button href="SOPIssues-GuiaAplicacion_v1.0_es.pdf" target="_blank">
             <strong>SOP Issues</strong> <br>
 			Problemas durante la aplicación
-        </a>
+        </button>
 
-        <!-- Botão 2 -->
-        <a href="SOPIssues-GuiaPreAplicacion_v1.0_es.pdf" class="btn" target="_blank">
+        <!-- Botão 5 -->
+        <button href="SOPIssues-GuiaPreAplicacion_v1.0_es.pdf" target="_blank">
             <strong>SOP Issues</strong> <br>
 			Problemas durante la pré-aplicación
-        </a>
+        </button>
 
-        <!-- Botão 3 -->
-        <a href="Adjunto MR- Conferencia de Configuraciones, Accesos y Licencias v1.0.pdf" class="btn" target="_blank">
+        <!-- Botão 6 -->
+        <button href="Adjunto MR- Conferencia de Configuraciones, Accesos y Licencias v1.0.pdf" target="_blank">
             <strong>Adjunto MR</strong> <br>
 			Configuraciones, Accesos y Licencias
-        </a>
-	<br>	
-	<h2>Herramientas&#128295;</h2>
-	<!-- Botão 4 -->
-        <a href="IssueTool.html" class="btn">
-            <strong>Issue Tool</strong><br>
-			Crear Chat Teams y Correo<br>
-			Crear Texto del Issue			
-        </a>
+        </button>
 	
-	<!-- Botão 5 -->
-        <a href="issueTool-tutorial.mp4" class="btn">
-            <strong>Issue Tool</strong><br>
-			Video tutorial			
-        </a>
-		
     </div>
+	
+	<h3>GE HealthCare Latam | Education Issue Tool v2. Release date: August 2026</h3>
 
 </body>
 </html>

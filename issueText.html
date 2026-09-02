@@ -417,6 +417,7 @@ function buildIssue(){
         lines.push(`- ${I18N[LANG].area}: ${areas.join(", ")}.`);
     }
     if(description){
+		lines.push("");
         lines.push(description);
     }
 
